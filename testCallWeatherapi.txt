@@ -1,0 +1,13 @@
+
+curl -X GET "http://api.weatherapi.com/v1/current.json?key=e0b1eac3e75a4aad845214445250402&q=Funchal&aqi=no"
+
+e0b1eac3e75a4aad845214445250402
+   Replace YOUR_WEATHERAPI_API_KEY with your actual API key.
+
+curl -X GET "http://api.weatherapi.com/v1/current.json?key=YOUR_WEATHERAPI_API_KEY&q=Funchal&aqi=no"
+
+  Replace YOUR_OPENWEATHERMAP_API_KEY with your actual API key.
+
+curl -u "YOUR_METEOMATICS_USERNAME:YOUR_METEOMATICS_PASSWORD" -X GET "https://api.meteomatics.com/2025-02-04T00:00:00Z/t_2m:C/Funchal/json"
+
+ Replace YOUR_METEOMATICS_USERNAME and YOUR_METEOMATICS_PASSWORD with your
