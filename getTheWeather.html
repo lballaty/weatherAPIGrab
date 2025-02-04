@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Report</title>
     <style>
+        /* Basic styling for body and container */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -20,7 +21,9 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        select, button {
+        
+        /* Styling for form inputs and buttons */
+        select, button, input {
             padding: 10px;
             margin: 10px;
             border-radius: 5px;
@@ -35,6 +38,8 @@
         button:hover {
             background: #ff477e;
         }
+        
+        /* Map and weather display styling */
         #map-container {
             margin-top: 20px;
         }
@@ -54,10 +59,29 @@
             width: 80px;
             height: 80px;
         }
+        
+        /* Styling for external links */
+        #links {
+            margin-top: 20px;
+        }
+        #links a {
+            color: #ffeb3b;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <div id="container">
+        <h2>Configure API Keys</h2>
+        <input type="text" id="openweathermap-key" placeholder="OpenWeatherMap API Key">
+        <input type="text" id="weatherapi-key" placeholder="WeatherAPI Key">
+        <input type="text" id="meteomatics-user" placeholder="Meteomatics Username">
+        <input type="password" id="meteomatics-password" placeholder="Meteomatics Password">
+        <button onclick="saveKeys()">Save Keys</button>
+        
         <h2>Select a location and provider to get the weather report</h2>
         <select id="location-dropdown">
             <option value="London">London</option>
@@ -67,11 +91,7 @@
             <option value="Sydney">Sydney</option>
             <option value="Funchal">Funchal</option>
             <option value="Lisbon">Lisbon</option>
-            <option value="Santo Serra Madeira">Santo Serra, Madeira</option>
-            <option value="Santa Cruz Madeira">Santa Cruz, Madeira</option>
-            <option value="Seixal Madeira">Seixal, Madeira</option>
             <option value="Prague Czech Republic">Prague, Czech Republic</option>
-            <option value="Boston Massachussets">Boston, Massachusetts</option>
         </select>
         
         <select id="provider-dropdown">
@@ -82,10 +102,12 @@
         
         <button onclick="getWeather()">Get Weather</button>
         
+        <!-- Display a small map for verification -->
         <div id="map-container">
             <iframe id="map" frameborder="0" style="border:0" allowfullscreen></iframe>
         </div>
 
+        <!-- Weather data display area -->
         <div id="weather-container" style="display:none;">
             <h3 id="city-name"></h3>
             <img id="weather-icon" src="" alt="Weather Icon">
@@ -94,32 +116,31 @@
             <p><strong>Humidity:</strong> <span id="humidity"></span>%</p>
             <p><strong>Wind Speed:</strong> <span id="wind-speed"></span> km/h</p>
         </div>
+        
+        <!-- External links -->
+        <div id="links">
+            <a href="https://petrasmadeirahideaway.com" target="_blank">Petra's Madeira Hideaway Website</a>
+            <a href="https://www.facebook.com/petrasmadeirahideaway" target="_blank">Petra's Madeira Hideaway Facebook</a>
+        </div>
     </div>
 
     <script>
-        function updateMap(location) {
-            const coordinates = {
-                "London": "51.5074,-0.1278",
-                "New York": "40.7128,-74.0060",
-                "Tokyo": "35.6895,139.6917",
-                "Paris": "48.8566,2.3522",
-                "Sydney": "-33.8688,151.2093",
-                "Funchal": "32.65,-16.91",
-                "Lisbon": "38.7169,-9.1399",
-                "Santo Serra Madeira": "32.7333,-16.8167",
-                "Santa Cruz Madeira": "32.6881,-16.7963",
-                "Seixal Madeira": "32.8278,-17.1015",
-                "Prague Czech Republic": "50.0755,14.4378",
-                "Boston Massachussets": "42.3601,-71.0589"
-            };
-            let latLon = coordinates[location];
-            document.getElementById('map').src = `https://maps.google.com/maps?q=${latLon}&z=10&output=embed`;
+        // Function to save API keys in local storage
+        function saveKeys() {
+            localStorage.setItem('openweathermap', document.getElementById('openweathermap-key').value);
+            localStorage.setItem('weatherapi', document.getElementById('weatherapi-key').value);
+            localStorage.setItem('meteomaticsUser', document.getElementById('meteomatics-user').value);
+            localStorage.setItem('meteomaticsPassword', document.getElementById('meteomatics-password').value);
+            alert('API Keys Saved!');
         }
         
-        async function getWeather() {
-            const location = document.getElementById('location-dropdown').value;
-            updateMap(location);
-        }
+        // Load saved API keys when the page is loaded
+        window.onload = function () {
+            document.getElementById('openweathermap-key').value = localStorage.getItem('openweathermap') || '';
+            document.getElementById('weatherapi-key').value = localStorage.getItem('weatherapi') || '';
+            document.getElementById('meteomatics-user').value = localStorage.getItem('meteomaticsUser') || '';
+            document.getElementById('meteomatics-password').value = localStorage.getItem('meteomaticsPassword') || '';
+        };
     </script>
 </body>
 </html>
