@@ -71,28 +71,98 @@
             display: block;
             margin: 5px 0;
         }
+
+
+        .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 40px; /* Make room for the button */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 5px;
+}
+
+.toggle-visibility {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.toggle-visibility:hover {
+    opacity: 1;
+}
     </style>
 </head>
 <body>
     <div id="container">
-        <h2>Configure API Keys</h2>
-        <input type="text" id="openweathermap-key" placeholder="OpenWeatherMap API Key">
-        <input type="text" id="weatherapi-key" placeholder="WeatherAPI Key">
-        <input type="text" id="meteomatics-user" placeholder="Meteomatics Username">
-        <input type="password" id="meteomatics-password" placeholder="Meteomatics Password">
+<div class="input-wrapper">
+    <input type="password" id="openweathermap-key" placeholder="OpenWeatherMap API Key">
+    <button type="button" class="toggle-visibility" onclick="toggleVisibility('openweathermap-key')">👁️</button>
+</div>
+
+<div class="input-wrapper">
+    <input type="password" id="weatherapi-key" placeholder="WeatherAPI Key">
+    <button type="button" class="toggle-visibility" onclick="toggleVisibility('weatherapi-key')">👁️</button>
+</div>
+
+<div class="input-wrapper">
+    <input type="password" id="meteomatics-user" placeholder="Meteomatics Username">
+    <button type="button" class="toggle-visibility" onclick="toggleVisibility('meteomatics-user')">👁️</button>
+</div>
+
+<div class="input-wrapper">
+    <input type="password" id="meteomatics-password" placeholder="Meteomatics Password">
+    <button type="button" class="toggle-visibility" onclick="toggleVisibility('meteomatics-password')">👁️</button>
+</div>
         <button onclick="saveKeys()">Save Keys</button>
         
         <h2>Select a location and provider to get the weather report</h2>
-        <select id="location-dropdown">
-            <option value="London">London</option>
-            <option value="New York">New York</option>
-            <option value="Tokyo">Tokyo</option>
-            <option value="Paris">Paris</option>
-            <option value="Sydney">Sydney</option>
-            <option value="Funchal">Funchal</option>
-            <option value="Lisbon">Lisbon</option>
-            <option value="Prague Czech Republic">Prague, Czech Republic</option>
-        </select>
+<select id="location-dropdown">
+    <option value="London">London</option>
+    <option value="New York">New York</option>
+    <option value="Tokyo">Tokyo</option>
+    <option value="Paris">Paris</option>
+    <option value="Sydney">Sydney</option>
+    <option value="Funchal">Funchal</option>
+    <option value="Lisbon">Lisbon</option>
+    <option value="Prague Czech Republic">Prague, Czech Republic</option>
+    <option value="Santo Serra Madeira">Santo Serra, Madeira</option>
+    <option value="Santa Cruz Madeira">Santa Cruz, Madeira</option>
+    <option value="Seixal Madeira">Seixal, Madeira</option>
+    <option value="Machico Madeira">Machico, Madeira</option>
+    <option value="Ponta do Sol Madeira">Ponta do Sol, Madeira</option>
+    <option value="Camara de Lobos Madeira">Camara de Lobos, Madeira</option>
+    <option value="Arco da Calheta Madeira">Arco da Calheta, Madeira</option>
+    <option value="Paul do Mar Madeira">Paul do Mar, Madeira</option>
+    <option value="Ponta da Pargo Madeira">Ponta da Pargo, Madeira</option>
+    <option value="Achada da Cruz Madeira">Achada da Cruz, Madeira</option>
+    <option value="Porto Moniz Madeira">Porto Moniz, Madeira</option>
+    <option value="Ribeira da Janela Madeira">Ribeira da Janela, Madeira</option>
+    <option value="Ribeira Brava Madeira">Ribeira Brava, Madeira</option>
+    <option value="Sao Vicente Madeira">Sao Vicente, Madeira</option>
+    <option value="Curral das Freiras Madeira">Curral das Freiras, Madeira</option>
+    <option value="Santana Madeira">Santana, Madeira</option>
+    <option value="Pico do Arieiro Madeira">Pico do Arieiro, Madeira</option>
+</select>
+
+
         
         <select id="provider-dropdown">
             <option value="openweathermap">OpenWeatherMap</option>
@@ -125,6 +195,191 @@
     </div>
 
     <script>
+
+async function getWeather() {
+    const location = document.getElementById('location-dropdown').value;
+    const provider = document.getElementById('provider-dropdown').value;
+    
+    // Get stored credentials for all providers
+    const openWeatherMapKey = localStorage.getItem('openweathermap');
+    const weatherApiKey = localStorage.getItem('weatherapi');
+    const meteomaticsUser = localStorage.getItem('meteomaticsUser');
+    const meteomaticsPassword = localStorage.getItem('meteomaticsPassword');
+    
+    let url = '';
+    let fetchOptions = {};
+
+    // First validate credentials
+    if (provider === 'openweathermap' && !openWeatherMapKey) {
+        alert('Please enter your OpenWeatherMap API key first');
+        return;
+    } else if (provider === 'weatherapi' && !weatherApiKey) {
+        alert('Please enter your WeatherAPI key first');
+        return;
+    } else if (provider === 'meteomatics' && (!meteomaticsUser || !meteomaticsPassword)) {
+        alert('Please enter your Meteomatics username and password first');
+        return;
+    }
+
+    try {
+        // Configure request based on provider
+        if (provider === 'meteomatics') {
+            // Get coordinates for the selected location
+            const coordinates = {
+        "Santa Cruz Madeira": "32.6881,-16.7963",               
+        "London": "51.5074,-0.1278",
+        "New York": "40.7128,-74.0060",
+        "Tokyo": "35.6895,139.6917",
+        "Paris": "48.8566,2.3522",
+        "Sydney": "-33.8688,151.2093",
+        "Funchal": "32.65,-16.91",
+        "Lisbon": "38.7169,-9.1399",
+        "Prague Czech Republic": "50.0755,14.4378",
+        "Santo Serra Madeira": "32.7333,-16.8167",
+        "Seixal Madeira": "32.8278,-17.1015",
+        "Machico Madeira": "32.7167,-16.7667",
+        "Ponta do Sol Madeira": "32.6833,-17.1",
+        "Camara de Lobos Madeira": "32.6333,-16.9667",
+        "Arco da Calheta Madeira": "32.7167,-17.15",
+        "Paul do Mar Madeira": "32.7667,-17.2333",
+        "Ponta da Pargo Madeira": "32.8167,-17.2667",
+        "Achada da Cruz Madeira": "32.85,-17.25",
+        "Porto Moniz Madeira": "32.8667,-17.1667",
+        "Ribeira da Janela Madeira": "32.85,-17.1167",
+        "Ribeira Brava Madeira": "32.6833,-17.05",
+        "Sao Vicente Madeira": "32.8,-17.05",
+        "Curral das Freiras Madeira": "32.7167,-16.9667",
+        "Santana Madeira": "32.8,-16.9",
+        "Pico do Arieiro Madeira": "32.7333,-16.9333"
+    };
+            
+            // Get current date in ISO format
+            const now = new Date();
+            const isoDate = now.toISOString().split('.')[0] + 'Z';
+            
+            // Construct URL with correct format
+            url = `https://api.meteomatics.com/${isoDate}/t_2m:C/${coordinates[location]}/json`;
+            
+            // Set up Basic Auth
+            fetchOptions = {
+                headers: {
+                    'Authorization': `Basic ${btoa(`${meteomaticsUser}:${meteomaticsPassword}`)}`
+                }
+            };
+        } else if (provider === 'openweathermap') {
+            url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${openWeatherMapKey}`;
+        } else if (provider === 'weatherapi') {
+            url = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${location}&aqi=no`;
+        }
+
+        const response = await fetch(url, fetchOptions);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Update weather display based on provider
+        if (provider === 'meteomatics') {
+            document.getElementById('city-name').innerText = location;
+            document.getElementById('temperature').innerText = data.data[0].coordinates[0].dates[0].value.toFixed(1);
+            document.getElementById('condition').innerText = 'N/A';
+            document.getElementById('humidity').innerText = 'N/A';
+            document.getElementById('wind-speed').innerText = 'N/A';
+            document.getElementById('weather-icon').src = '';
+        } else if (provider === 'openweathermap') {
+            document.getElementById('city-name').innerText = data.name;
+            document.getElementById('temperature').innerText = data.main.temp.toFixed(1);
+            document.getElementById('condition').innerText = data.weather[0].description;
+            document.getElementById('humidity').innerText = data.main.humidity;
+            document.getElementById('wind-speed').innerText = (data.wind.speed * 3.6).toFixed(1);
+            document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+        } else if (provider === 'weatherapi') {
+            document.getElementById('city-name').innerText = data.location.name;
+            document.getElementById('temperature').innerText = data.current.temp_c;
+            document.getElementById('condition').innerText = data.current.condition.text;
+            document.getElementById('humidity').innerText = data.current.humidity;
+            document.getElementById('wind-speed').innerText = data.current.wind_kph;
+            document.getElementById('weather-icon').src = data.current.condition.icon;
+        }
+        
+        document.getElementById('weather-container').style.display = 'block';
+        updateMap(location);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error fetching weather data from ${provider}. Please check your credentials and try again.`);
+    }
+}
+
+// Separate function to handle weather display updates
+function updateWeatherDisplay(provider, data, location) {
+    const weatherContainer = document.getElementById('weather-container');
+    
+    if (provider === 'openweathermap') {
+        document.getElementById('city-name').innerText = data.name;
+        document.getElementById('temperature').innerText = data.main.temp.toFixed(1);
+        document.getElementById('condition').innerText = data.weather[0].description;
+        document.getElementById('humidity').innerText = data.main.humidity;
+        document.getElementById('wind-speed').innerText = (data.wind.speed * 3.6).toFixed(1); // Convert m/s to km/h
+        document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    } else if (provider === 'weatherapi') {
+        document.getElementById('city-name').innerText = data.location.name;
+        document.getElementById('temperature').innerText = data.current.temp_c;
+        document.getElementById('condition').innerText = data.current.condition.text;
+        document.getElementById('humidity').innerText = data.current.humidity;
+        document.getElementById('wind-speed').innerText = data.current.wind_kph;
+        document.getElementById('weather-icon').src = data.current.condition.icon;
+    } else if (provider === 'meteomatics') {
+        document.getElementById('city-name').innerText = location;
+        document.getElementById('temperature').innerText = data.data[0].coordinates[0].value.toFixed(1);
+        document.getElementById('condition').innerText = 'N/A';
+        document.getElementById('humidity').innerText = 'N/A';
+        document.getElementById('wind-speed').innerText = 'N/A';
+        document.getElementById('weather-icon').src = ''; // Meteomatics doesn't provide weather icons
+    }
+    
+    weatherContainer.style.display = 'block';
+}
+
+ function updateMap(location) {
+    const coordinates = {
+        "Santa Cruz Madeira": "32.6881,-16.7963",
+        "London": "51.5074,-0.1278",
+        "New York": "40.7128,-74.0060",
+        "Tokyo": "35.6895,139.6917",
+        "Paris": "48.8566,2.3522",
+        "Sydney": "-33.8688,151.2093",
+        "Funchal": "32.65,-16.91",
+        "Lisbon": "38.7169,-9.1399",
+        "Santo Serra Madeira": "32.7333,-16.8167",
+        "Seixal Madeira": "32.8278,-17.1015",
+        "Prague Czech Republic": "50.0755,14.4378",
+        "Boston Massachussets": "42.3601,-71.0589",
+        "Machico Madeira": "32.7167,-16.7667",
+        "Ponta do Sol Madeira": "32.6833,-17.1",
+        "Camara de Lobos Madeira": "32.6333,-16.9667",
+        "Arco da Calheta Madeira": "32.7167,-17.15",
+        "Paul do Mar Madeira": "32.7667,-17.2333",
+        "Ponta da Pargo Madeira": "32.8167,-17.2667",
+        "Achada da Cruz Madeira": "32.85,-17.25",
+        "Porto Moniz Madeira": "32.8667,-17.1667",
+        "Ribeira da Janela Madeira": "32.85,-17.1167",
+        "Ribeira Brava Madeira": "32.6833,-17.05",
+        "Sao Vicente Madeira": "32.8,-17.05",
+        "Curral das Freiras Madeira": "32.7167,-16.9667",
+        "Santana Madeira": "32.8,-16.9",
+        "Pico do Arieiro Madeira": "32.7333,-16.9333"
+    };
+    
+    let latLon = coordinates[location];
+    document.getElementById('map').src = `https://maps.google.com/maps?q=${latLon}&z=10&output=embed`;
+}
+
+            
+
+
         // Function to save API keys in local storage
         function saveKeys() {
             localStorage.setItem('openweathermap', document.getElementById('openweathermap-key').value);
@@ -141,6 +396,37 @@
             document.getElementById('meteomatics-user').value = localStorage.getItem('meteomaticsUser') || '';
             document.getElementById('meteomatics-password').value = localStorage.getItem('meteomaticsPassword') || '';
         };
+
+        function toggleVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    
+    if (input.type === "password") {
+        input.type = "text";
+        button.textContent = "🔒"; // Changed icon to indicate can click to hide
+    } else {
+        input.type = "password";
+        button.textContent = "👁️"; // Changed icon to indicate can click to show
+    }
+}
+
+// Update your existing window.onload function to ensure fields start as password type
+window.onload = function () {
+    // Get the saved values
+    const savedKeys = {
+        'openweathermap-key': localStorage.getItem('openweathermap') || '',
+        'weatherapi-key': localStorage.getItem('weatherapi') || '',
+        'meteomatics-user': localStorage.getItem('meteomaticsUser') || '',
+        'meteomatics-password': localStorage.getItem('meteomaticsPassword') || ''
+    };
+    
+    // Set the values and ensure type is password
+    Object.keys(savedKeys).forEach(id => {
+        const input = document.getElementById(id);
+        input.value = savedKeys[id];
+        input.type = 'password';
+    });
+};
     </script>
 </body>
 </html>
